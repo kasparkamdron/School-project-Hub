@@ -27,9 +27,16 @@ export const Route = createFileRoute("/_authenticated/friends")({
   head: () => ({
     meta: [
       { title: "Friends — Hub" },
-      { name: "description", content: "Add classmates, accept requests, and manage who can reach you." },
+      {
+        name: "description",
+        content:
+          "Add classmates, accept requests, and manage who can reach you.",
+      },
       { property: "og:title", content: "Friends — Hub" },
-      { property: "og:description", content: "Your Hub friend list: requests, removals and blocks." },
+      {
+        property: "og:description",
+        content: "Your Hub friend list: requests, removals and blocks.",
+      },
     ],
   }),
   component: FriendsPage,
@@ -51,7 +58,9 @@ function PersonRow({
       <UserAvatar name={name} url={avatar} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{name}</p>
-        {school ? <p className="truncate text-[11px] text-muted-foreground">{school}</p> : null}
+        {school ? (
+          <p className="truncate text-[11px] text-muted-foreground">{school}</p>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">{children}</div>
     </div>
@@ -82,13 +91,22 @@ function FriendsPage() {
     queryClient.invalidateQueries({ queryKey: ["unread-count"] });
   };
 
-  const friends = useMemo(() => (edges.data ?? []).filter((e) => e.status === "accepted"), [edges.data]);
+  const friends = useMemo(
+    () => (edges.data ?? []).filter((e) => e.status === "accepted"),
+    [edges.data],
+  );
   const incoming = useMemo(
-    () => (edges.data ?? []).filter((e) => e.status === "pending" && e.direction === "incoming"),
+    () =>
+      (edges.data ?? []).filter(
+        (e) => e.status === "pending" && e.direction === "incoming",
+      ),
     [edges.data],
   );
   const outgoing = useMemo(
-    () => (edges.data ?? []).filter((e) => e.status === "pending" && e.direction === "outgoing"),
+    () =>
+      (edges.data ?? []).filter(
+        (e) => e.status === "pending" && e.direction === "outgoing",
+      ),
     [edges.data],
   );
 
@@ -101,7 +119,8 @@ function FriendsPage() {
     onError: () => toast.error("Couldn't send that request."),
   });
   const respond = useMutation({
-    mutationFn: ({ id, accept }: { id: string; accept: boolean }) => respondToRequest(id, accept),
+    mutationFn: ({ id, accept }: { id: string; accept: boolean }) =>
+      respondToRequest(id, accept),
     onSuccess: refresh,
     onError: (e: Error) => toast.error(e.message),
   });
@@ -132,8 +151,12 @@ function FriendsPage() {
       <section className="glass rounded-[22px] p-5 shadow-panel">
         <div className="flex items-start gap-2">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Friends</p>
-            <h1 className="mt-1 font-display text-[26px] font-semibold leading-tight">Who you can work with</h1>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              Friends
+            </p>
+            <h1 className="mt-1 font-display text-[26px] font-semibold leading-tight">
+              Who you can work with
+            </h1>
           </div>
           <HelpHint
             className="ml-auto"
@@ -169,7 +192,12 @@ function FriendsPage() {
           ) : results.data && results.data.length > 0 ? (
             <div className="grid gap-2 md:grid-cols-2">
               {results.data.map((p) => (
-                <PersonRow key={p.id} name={p.display_name} school={p.school} avatar={p.avatar_url}>
+                <PersonRow
+                  key={p.id}
+                  name={p.display_name}
+                  school={p.school}
+                  avatar={p.avatar_url}
+                >
                   {p.link_status === "none" ? (
                     <Button
                       size="sm"
@@ -218,7 +246,12 @@ function FriendsPage() {
           ) : friends.length > 0 ? (
             <div className="grid gap-2 md:grid-cols-2">
               {friends.map((f) => (
-                <PersonRow key={f.id} name={f.other.display_name} school={f.other.school} avatar={f.other.avatar_url}>
+                <PersonRow
+                  key={f.id}
+                  name={f.other.display_name}
+                  school={f.other.school}
+                  avatar={f.other.avatar_url}
+                >
                   <Button
                     size="icon"
                     variant="ghost"
@@ -254,7 +287,12 @@ function FriendsPage() {
             </h3>
             {incoming.length > 0 ? (
               incoming.map((f) => (
-                <PersonRow key={f.id} name={f.other.display_name} school={f.other.school} avatar={f.other.avatar_url}>
+                <PersonRow
+                  key={f.id}
+                  name={f.other.display_name}
+                  school={f.other.school}
+                  avatar={f.other.avatar_url}
+                >
                   <Button
                     size="icon"
                     className="rounded-full"
@@ -275,7 +313,9 @@ function FriendsPage() {
                 </PersonRow>
               ))
             ) : (
-              <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">No pending requests.</p>
+              <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">
+                No pending requests.
+              </p>
             )}
           </div>
 
@@ -285,14 +325,26 @@ function FriendsPage() {
             </h3>
             {outgoing.length > 0 ? (
               outgoing.map((f) => (
-                <PersonRow key={f.id} name={f.other.display_name} school={f.other.school} avatar={f.other.avatar_url}>
-                  <Button size="sm" variant="ghost" className="rounded-full" onClick={() => unfriend.mutate(f.id)}>
+                <PersonRow
+                  key={f.id}
+                  name={f.other.display_name}
+                  school={f.other.school}
+                  avatar={f.other.avatar_url}
+                >
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full"
+                    onClick={() => unfriend.mutate(f.id)}
+                  >
                     Cancel
                   </Button>
                 </PersonRow>
               ))
             ) : (
-              <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">Nothing waiting.</p>
+              <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">
+                Nothing waiting.
+              </p>
             )}
           </div>
         </TabsContent>
@@ -306,13 +358,20 @@ function FriendsPage() {
                 school={b.profile?.school}
                 avatar={b.profile?.avatar_url}
               >
-                <Button size="sm" variant="ghost" className="rounded-full" onClick={() => unblock.mutate(b.id)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full"
+                  onClick={() => unblock.mutate(b.id)}
+                >
                   Unblock
                 </Button>
               </PersonRow>
             ))
           ) : (
-            <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">Nobody blocked.</p>
+            <p className="rounded-[18px] glass p-4 text-sm text-muted-foreground">
+              Nobody blocked.
+            </p>
           )}
         </TabsContent>
       </Tabs>

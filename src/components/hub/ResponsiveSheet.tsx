@@ -1,7 +1,19 @@
 import type { ReactNode } from "react";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 /**
@@ -29,9 +41,13 @@ export function ResponsiveSheet({
         <DrawerContent className="glass-strong max-h-[92vh] rounded-t-3xl">
           <DrawerHeader className="text-left">
             <DrawerTitle className="font-display text-xl">{title}</DrawerTitle>
-            {description ? <DrawerDescription>{description}</DrawerDescription> : null}
+            {description ? (
+              <DrawerDescription>{description}</DrawerDescription>
+            ) : null}
           </DrawerHeader>
-          <div className="max-h-[70vh] overflow-y-auto px-4 pb-8">{children}</div>
+          <div className="max-h-[70vh] overflow-y-auto px-4 pb-8">
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -42,7 +58,9 @@ export function ResponsiveSheet({
       <DialogContent className="glass-strong max-h-[85vh] overflow-y-auto rounded-3xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">{title}</DialogTitle>
-          {description ? <DialogDescription>{description}</DialogDescription> : null}
+          {description ? (
+            <DialogDescription>{description}</DialogDescription>
+          ) : null}
         </DialogHeader>
         {children}
       </DialogContent>

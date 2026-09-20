@@ -8,7 +8,13 @@
  */
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Compass, X } from "lucide-react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -135,7 +141,9 @@ export function TourGuide() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   // Only inside the signed-in app — not on the landing page or onboarding.
-  const inApp = TOUR_STEPS.some((s) => pathname === s.route || pathname.startsWith(`${s.route}/`));
+  const inApp = TOUR_STEPS.some(
+    (s) => pathname === s.route || pathname.startsWith(`${s.route}/`),
+  );
 
   useEffect(() => {
     const onStart = () => {
@@ -213,7 +221,10 @@ export function TourGuide() {
 
   return (
     <div className="fixed inset-0 z-[70]">
-      <div className="absolute inset-0 bg-foreground/45 backdrop-blur-[2px]" onClick={finish} />
+      <div
+        className="absolute inset-0 bg-foreground/45 backdrop-blur-[2px]"
+        onClick={finish}
+      />
 
       {box ? (
         <div
@@ -234,7 +245,12 @@ export function TourGuide() {
         style={
           box
             ? cardBelow
-              ? { top: Math.min(box.top + box.height + 16, Math.max(window.innerHeight - 300, 16)) }
+              ? {
+                  top: Math.min(
+                    box.top + box.height + 16,
+                    Math.max(window.innerHeight - 300, 16),
+                  ),
+                }
               : { top: Math.max(box.top - 290, 16) }
             : { top: "50%", transform: "translateY(-50%)" }
         }
@@ -248,7 +264,9 @@ export function TourGuide() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
                 Tour {index + 1} of {TOUR_STEPS.length}
               </p>
-              <h2 className="mt-1 font-display text-[19px] font-semibold leading-tight">{step.title}</h2>
+              <h2 className="mt-1 font-display text-[19px] font-semibold leading-tight">
+                {step.title}
+              </h2>
             </div>
             <button
               type="button"
@@ -260,7 +278,9 @@ export function TourGuide() {
             </button>
           </div>
 
-          <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{step.body}</p>
+          <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+            {step.body}
+          </p>
 
           {step.tip ? (
             <p className="mt-3 rounded-2xl bg-primary/10 p-3 text-[12px] leading-relaxed text-foreground">
@@ -270,7 +290,10 @@ export function TourGuide() {
           ) : null}
 
           <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${progress}%` }}
+            />
           </div>
 
           <div className="mt-4 flex items-center gap-2">
@@ -283,7 +306,11 @@ export function TourGuide() {
             </button>
             <div className="ml-auto flex gap-2">
               {index > 0 ? (
-                <Button variant="ghost" className="h-10 rounded-full px-3" onClick={back}>
+                <Button
+                  variant="ghost"
+                  className="h-10 rounded-full px-3"
+                  onClick={back}
+                >
                   <ArrowLeft className="size-4" /> Back
                 </Button>
               ) : null}

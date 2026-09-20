@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, LogOut, Plus, Trash2, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  LogOut,
+  Plus,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -44,9 +51,16 @@ export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({
     meta: [
       { title: "Group workspace — Hub" },
-      { name: "description", content: "Tasks, assignees, deadlines and shared notes for one project group." },
+      {
+        name: "description",
+        content:
+          "Tasks, assignees, deadlines and shared notes for one project group.",
+      },
       { property: "og:title", content: "Group workspace — Hub" },
-      { property: "og:description", content: "Split the work, track deadlines and keep notes in one place." },
+      {
+        property: "og:description",
+        content: "Split the work, track deadlines and keep notes in one place.",
+      },
     ],
   }),
   component: GroupDetail,
@@ -68,10 +82,22 @@ function GroupDetail() {
   const [noteOpen, setNoteOpen] = useState(false);
   const [memberOpen, setMemberOpen] = useState(false);
 
-  const group = useQuery({ queryKey: ["group", groupId], queryFn: () => getGroup(groupId) });
-  const members = useQuery({ queryKey: ["group-members", groupId], queryFn: () => listGroupMembers(groupId) });
-  const tasks = useQuery({ queryKey: ["tasks", groupId], queryFn: () => listTasks(groupId) });
-  const notes = useQuery({ queryKey: ["notes", groupId], queryFn: () => listNotes(groupId) });
+  const group = useQuery({
+    queryKey: ["group", groupId],
+    queryFn: () => getGroup(groupId),
+  });
+  const members = useQuery({
+    queryKey: ["group-members", groupId],
+    queryFn: () => listGroupMembers(groupId),
+  });
+  const tasks = useQuery({
+    queryKey: ["tasks", groupId],
+    queryFn: () => listTasks(groupId),
+  });
+  const notes = useQuery({
+    queryKey: ["notes", groupId],
+    queryFn: () => listNotes(groupId),
+  });
 
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["tasks", groupId] });
@@ -84,11 +110,34 @@ function GroupDetail() {
   useEffect(() => {
     const channel = supabase
       .channel(`group-${groupId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `group_id=eq.${groupId}` }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "notes", filter: `group_id=eq.${groupId}` }, refresh)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "group_members", filter: `group_id=eq.${groupId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `group_id=eq.${groupId}`,
+        },
+        refresh,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notes",
+          filter: `group_id=eq.${groupId}`,
+        },
+        refresh,
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "group_members",
+          filter: `group_id=eq.${groupId}`,
+        },
         refresh,
       )
       .subscribe();
@@ -99,14 +148,20 @@ function GroupDetail() {
   }, [groupId]);
 
   const toggleTask = useMutation({
-    mutationFn: ({ id, completed }: { id: string; completed: boolean }) => updateTask(id, { completed }),
+    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
+      updateTask(id, { completed }),
     onSuccess: refresh,
     onError: (e: Error) => toast.error(e.message),
   });
 
   const assign = useMutation({
-    mutationFn: ({ id, assigned_to }: { id: string; assigned_to: string | null }) =>
-      updateTask(id, { assigned_to }),
+    mutationFn: ({
+      id,
+      assigned_to,
+    }: {
+      id: string;
+      assigned_to: string | null;
+    }) => updateTask(id, { assigned_to }),
     onSuccess: refresh,
     onError: (e: Error) => toast.error(e.message),
   });
@@ -154,13 +209,22 @@ function GroupDetail() {
         <section className="glass rounded-[22px] p-5 shadow-panel">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="font-display text-[26px] font-semibold leading-tight">{group.data?.name}</h1>
+              <h1 className="font-display text-[26px] font-semibold leading-tight">
+                {group.data?.name}
+              </h1>
               {group.data?.description ? (
-                <p className="mt-1 text-sm text-muted-foreground">{group.data.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {group.data.description}
+                </p>
               ) : null}
             </div>
             {label ? (
-              <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold", toneClass[tone])}>
+              <span
+                className={cn(
+                  "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  toneClass[tone],
+                )}
+              >
                 {label}
               </span>
             ) : null}
@@ -173,7 +237,10 @@ function GroupDetail() {
               <span className="text-primary">{pct}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
         </section>
@@ -194,7 +261,12 @@ function GroupDetail() {
                   "A due date makes it show up on the calendar and in deadline reminders.",
                 ]}
               />
-              <Button size="sm" variant="secondary" className="rounded-full" onClick={() => setTaskOpen(true)}>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => setTaskOpen(true)}
+              >
                 <Plus className="size-4" /> Add
               </Button>
             </div>
@@ -208,7 +280,10 @@ function GroupDetail() {
                     <Checkbox
                       checked={task.completed}
                       onCheckedChange={(checked) =>
-                        toggleTask.mutate({ id: task.id, completed: checked === true })
+                        toggleTask.mutate({
+                          id: task.id,
+                          completed: checked === true,
+                        })
                       }
                       className="mt-0.5 size-6 rounded-lg"
                       aria-label={`Mark ${task.title} complete`}
@@ -217,7 +292,8 @@ function GroupDetail() {
                       <p
                         className={cn(
                           "text-sm font-medium",
-                          task.completed && "text-muted-foreground line-through",
+                          task.completed &&
+                            "text-muted-foreground line-through",
                         )}
                       >
                         {task.title}
@@ -225,13 +301,17 @@ function GroupDetail() {
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                         {task.deadline ? (
                           <span className="inline-flex items-center gap-1">
-                            <CalendarDays className="size-3" /> {dueLabel(task.deadline)}
+                            <CalendarDays className="size-3" />{" "}
+                            {dueLabel(task.deadline)}
                           </span>
                         ) : null}
                         <Select
                           value={task.assigned_to ?? "none"}
                           onValueChange={(value) =>
-                            assign.mutate({ id: task.id, assigned_to: value === "none" ? null : value })
+                            assign.mutate({
+                              id: task.id,
+                              assigned_to: value === "none" ? null : value,
+                            })
                           }
                         >
                           <SelectTrigger className="h-7 w-auto min-w-28 rounded-full border-0 glass-inset px-3 text-[11px]">
@@ -278,7 +358,12 @@ function GroupDetail() {
                   "Writing a note also counts as activity, so it keeps the group from clearing.",
                 ]}
               />
-              <Button size="sm" variant="secondary" className="rounded-full" onClick={() => setNoteOpen(true)}>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => setNoteOpen(true)}
+              >
                 <Plus className="size-4" /> Add
               </Button>
             </div>
@@ -290,13 +375,18 @@ function GroupDetail() {
                 notes.data.map((note) => {
                   const task = tasks.data?.find((t) => t.id === note.task_id);
                   return (
-                    <div key={note.id} className="rounded-[16px] glass-inset p-3">
+                    <div
+                      key={note.id}
+                      className="rounded-[16px] glass-inset p-3"
+                    >
                       {task ? (
                         <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
                           on: {task.title}
                         </p>
                       ) : null}
-                      <p className="whitespace-pre-wrap text-pretty text-[13px] leading-relaxed">{note.content}</p>
+                      <p className="whitespace-pre-wrap text-pretty text-[13px] leading-relaxed">
+                        {note.content}
+                      </p>
                       <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
                         <UserAvatar
                           name={note.author?.display_name}
@@ -334,14 +424,23 @@ function GroupDetail() {
           <section className="glass rounded-[22px] p-4">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold">Members</h2>
-              <Button size="sm" variant="secondary" className="rounded-full" onClick={() => setMemberOpen(true)}>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => setMemberOpen(true)}
+              >
                 <UserPlus className="size-4" /> Add
               </Button>
             </div>
             <div className="mt-3 space-y-2">
               {(members.data ?? []).map((m) => (
                 <div key={m.id} className="flex items-center gap-3">
-                  <UserAvatar name={m.display_name} url={m.avatar_url} className="size-8" />
+                  <UserAvatar
+                    name={m.display_name}
+                    url={m.avatar_url}
+                    className="size-8"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">
                       {m.id === user?.id ? "You" : m.display_name}
@@ -351,7 +450,11 @@ function GroupDetail() {
                         </span>
                       ) : null}
                     </p>
-                    {m.school ? <p className="truncate text-[11px] text-muted-foreground">{m.school}</p> : null}
+                    {m.school ? (
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        {m.school}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -363,12 +466,16 @@ function GroupDetail() {
             <dl className="mt-3 space-y-2 text-[13px]">
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Deadline</dt>
-                <dd className="font-medium">{dueLabel(group.data?.deadline) ?? "None set"}</dd>
+                <dd className="font-medium">
+                  {dueLabel(group.data?.deadline) ?? "None set"}
+                </dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Last activity</dt>
                 <dd className="font-medium">
-                  {group.data?.last_activity_at ? shortWhen(group.data.last_activity_at) : "—"}
+                  {group.data?.last_activity_at
+                    ? shortWhen(group.data.last_activity_at)
+                    : "—"}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
@@ -491,7 +598,11 @@ function AddTaskSheet({
             className="h-12 rounded-2xl"
           />
         </div>
-        <Button className="h-13 w-full rounded-2xl text-base" onClick={() => add.mutate()} disabled={add.isPending}>
+        <Button
+          className="h-13 w-full rounded-2xl text-base"
+          onClick={() => add.mutate()}
+          disabled={add.isPending}
+        >
           {add.isPending ? "Adding…" : "Add task"}
         </Button>
       </div>
@@ -520,7 +631,12 @@ function AddNoteSheet({
     mutationFn: async () => {
       if (!user) throw new Error("Not signed in");
       if (content.trim().length < 2) throw new Error("Write something first.");
-      await createNote({ groupId, content, taskId: taskId === "none" ? null : taskId, authorId: user.id });
+      await createNote({
+        groupId,
+        content,
+        taskId: taskId === "none" ? null : taskId,
+        authorId: user.id,
+      });
     },
     onSuccess: () => {
       setContent("");
@@ -561,7 +677,11 @@ function AddNoteSheet({
             </SelectContent>
           </Select>
         </div>
-        <Button className="h-13 w-full rounded-2xl text-base" onClick={() => add.mutate()} disabled={add.isPending}>
+        <Button
+          className="h-13 w-full rounded-2xl text-base"
+          onClick={() => add.mutate()}
+          disabled={add.isPending}
+        >
           {add.isPending ? "Saving…" : "Save note"}
         </Button>
       </div>
@@ -590,7 +710,11 @@ function AddMemberSheet({
   });
 
   const candidates = useMemo(
-    () => edges.filter((e) => e.status === "accepted").map((e) => e.other).filter((p) => !existing.includes(p.id)),
+    () =>
+      edges
+        .filter((e) => e.status === "accepted")
+        .map((e) => e.other)
+        .filter((p) => !existing.includes(p.id)),
     [edges, existing],
   );
 
@@ -612,18 +736,35 @@ function AddMemberSheet({
     >
       {candidates.length === 0 ? (
         <p className="rounded-2xl glass-inset p-3 text-sm text-muted-foreground">
-          Every friend is already in this group. Add more classmates on the Friends tab.
+          Every friend is already in this group. Add more classmates on the
+          Friends tab.
         </p>
       ) : (
         <div className="space-y-2">
           {candidates.map((c) => (
-            <div key={c.id} className="flex items-center gap-3 rounded-2xl glass-inset p-3">
-              <UserAvatar name={c.display_name} url={c.avatar_url} className="size-8" />
+            <div
+              key={c.id}
+              className="flex items-center gap-3 rounded-2xl glass-inset p-3"
+            >
+              <UserAvatar
+                name={c.display_name}
+                url={c.avatar_url}
+                className="size-8"
+              />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{c.display_name}</p>
-                {c.school ? <p className="truncate text-[11px] text-muted-foreground">{c.school}</p> : null}
+                {c.school ? (
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {c.school}
+                  </p>
+                ) : null}
               </div>
-              <Button size="sm" className="rounded-full" onClick={() => add.mutate(c.id)} disabled={add.isPending}>
+              <Button
+                size="sm"
+                className="rounded-full"
+                onClick={() => add.mutate(c.id)}
+                disabled={add.isPending}
+              >
                 Add
               </Button>
             </div>
