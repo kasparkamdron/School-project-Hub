@@ -30,7 +30,11 @@ export function UserAvatar({
   );
 }
 
-export function AvatarStack({ people }: { people: { id: string; display_name: string; avatar_url: string | null }[] }) {
+export function AvatarStack({
+  people,
+}: {
+  people: { id: string; display_name: string; avatar_url: string | null }[];
+}) {
   const shown = people.slice(0, 4);
   return (
     <div className="flex items-center">

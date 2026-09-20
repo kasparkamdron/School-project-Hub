@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type ThemeName = "frost" | "chalk";
 
@@ -32,7 +39,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    const initial: ThemeName = stored === "chalk" || stored === "frost" ? stored : "frost";
+    const initial: ThemeName =
+      stored === "chalk" || stored === "frost" ? stored : "frost";
     setThemeState(initial);
     apply(initial);
   }, []);
@@ -48,7 +56,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 

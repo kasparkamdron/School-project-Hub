@@ -17,7 +17,10 @@ export function deadlineCutoff() {
 }
 
 /** Live "is this group still active" rule, matching the nightly cleanup. */
-export function isGroupActive(g: { last_activity_at: string; deadline: string | null }) {
+export function isGroupActive(g: {
+  last_activity_at: string;
+  deadline: string | null;
+}) {
   if (g.last_activity_at < activeSince()) return false;
   if (g.deadline && g.deadline < deadlineCutoff()) return false;
   return true;
@@ -96,7 +99,9 @@ export async function saveProfile(input: {
     .update({
       display_name: input.display_name.trim(),
       school: input.school?.trim() || null,
-      ...(input.avatar_url !== undefined ? { avatar_url: input.avatar_url || null } : {}),
+      ...(input.avatar_url !== undefined
+        ? { avatar_url: input.avatar_url || null }
+        : {}),
       ...(input.onboarded !== undefined ? { onboarded: input.onboarded } : {}),
     })
     .eq("id", input.id);
@@ -123,11 +128,14 @@ export async function listActiveGroups(): Promise<GroupSummary[]> {
   return (data ?? [])
     .filter((g) => isGroupActive(g as unknown as GroupRow))
     .map((g: Record<string, unknown>) => {
-      const memberRows = (g["group_members"] as { profiles: MiniProfile | null }[]) ?? [];
+      const memberRows =
+        (g["group_members"] as { profiles: MiniProfile | null }[]) ?? [];
       const tasks = (g["tasks"] as { id: string; completed: boolean }[]) ?? [];
       return {
         ...(g as unknown as GroupRow),
-        members: memberRows.map((m) => m.profiles).filter(Boolean) as MiniProfile[],
+        members: memberRows
+          .map((m) => m.profiles)
+          .filter(Boolean) as MiniProfile[],
         taskTotal: tasks.length,
         taskDone: tasks.filter((t) => t.completed).length,
       };
@@ -135,17 +143,25 @@ export async function listActiveGroups(): Promise<GroupSummary[]> {
 }
 
 export async function countQuietGroups(): Promise<number> {
-  const { data, error } = await supabase.from("groups").select("last_activity_at, deadline");
+  const { data, error } = await supabase
+    .from("groups")
+    .select("last_activity_at, deadline");
   if (error) throw new Error(error.message);
   return (data ?? []).filter((g) => !isGroupActive(g as GroupRow)).length;
 }
 
 export async function getGroup(groupId: string): Promise<GroupRow> {
-  const { data, error } = await supabase.from("groups").select("*").eq("id", groupId).single();
+  const { data, error } = await supabase
+    .from("groups")
+    .select("*")
+    .eq("id", groupId)
+    .single();
   return unwrap(data as GroupRow, error);
 }
 
-export async function listGroupMembers(groupId: string): Promise<MiniProfile[]> {
+export async function listGroupMembers(
+  groupId: string,
+): Promise<MiniProfile[]> {
   const { data, error } = await supabase
     .from("group_members")
     .select("user_id, profiles:user_id(id, display_name, avatar_url, school)")
@@ -167,16 +183,28 @@ export async function createGroup(input: {
     _description: input.description ?? null,
     _deadline: input.deadline ?? null,
     _member_ids: input.memberIds,
-  } as unknown as { _name: string; _description: string; _deadline: string; _member_ids: string[] };
+  } as unknown as {
+    _name: string;
+    _description: string;
+    _deadline: string;
+    _member_ids: string[];
+  };
   const { data, error } = await supabase.rpc("create_group_with_members", args);
   return unwrap(data as string, error);
 }
 
 export async function updateGroup(
   groupId: string,
-  patch: { name?: string; description?: string | null; deadline?: string | null },
+  patch: {
+    name?: string;
+    description?: string | null;
+    deadline?: string | null;
+  },
 ) {
-  const { error } = await supabase.from("groups").update(patch).eq("id", groupId);
+  const { error } = await supabase
+    .from("groups")
+    .update(patch)
+    .eq("id", groupId);
   if (error) throw new Error(error.message);
 }
 
@@ -193,7 +221,8 @@ export async function rescheduleProject(groupId: string, newDeadline: string) {
   if (error) throw new Error(error.message);
   if (!group?.deadline) throw new Error("This project has no deadline yet.");
 
-  const deltaMs = new Date(newDeadline).getTime() - new Date(group.deadline).getTime();
+  const deltaMs =
+    new Date(newDeadline).getTime() - new Date(group.deadline).getTime();
   if (deltaMs === 0) return { shiftedTasks: 0 };
 
   const { data: tasks, error: taskError } = await supabase
@@ -205,10 +234,16 @@ export async function rescheduleProject(groupId: string, newDeadline: string) {
 
   await updateGroup(groupId, { deadline: newDeadline });
 
-  const dated = (tasks ?? []).filter((t): t is { id: string; deadline: string } => Boolean(t.deadline));
+  const dated = (tasks ?? []).filter(
+    (t): t is { id: string; deadline: string } => Boolean(t.deadline),
+  );
   await Promise.all(
     dated.map((t) =>
-      updateTask(t.id, { deadline: new Date(new Date(t.deadline).getTime() + deltaMs).toISOString() }),
+      updateTask(t.id, {
+        deadline: new Date(
+          new Date(t.deadline).getTime() + deltaMs,
+        ).toISOString(),
+      }),
     ),
   );
 
@@ -216,7 +251,9 @@ export async function rescheduleProject(groupId: string, newDeadline: string) {
 }
 
 export async function addGroupMember(groupId: string, userId: string) {
-  const { error } = await supabase.from("group_members").insert({ group_id: groupId, user_id: userId });
+  const { error } = await supabase
+    .from("group_members")
+    .insert({ group_id: groupId, user_id: userId });
   if (error) throw new Error(error.message);
 }
 
@@ -284,7 +321,11 @@ export async function listCalendarItems(): Promise<CalendarItem[]> {
     deadline: string;
     completed: boolean;
     group_id: string;
-    groups: { name: string; last_activity_at: string; deadline: string | null } | null;
+    groups: {
+      name: string;
+      last_activity_at: string;
+      deadline: string | null;
+    } | null;
   }>) {
     if (t.groups && !isGroupActive(t.groups)) continue;
     items.push({
@@ -331,7 +372,12 @@ export async function createTask(input: {
 
 export async function updateTask(
   taskId: string,
-  patch: { title?: string; assigned_to?: string | null; deadline?: string | null; completed?: boolean },
+  patch: {
+    title?: string;
+    assigned_to?: string | null;
+    deadline?: string | null;
+    completed?: boolean;
+  },
 ) {
   const { error } = await supabase.from("tasks").update(patch).eq("id", taskId);
   if (error) throw new Error(error.message);
@@ -385,15 +431,17 @@ export async function listFriendEdges(myId: string): Promise<FriendEdge[]> {
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
 
-  return ((data ?? []) as unknown as Array<{
-    id: string;
-    status: FriendEdge["status"];
-    created_at: string;
-    requester_id: string;
-    addressee_id: string;
-    requester: MiniProfile | null;
-    addressee: MiniProfile | null;
-  }>)
+  return (
+    (data ?? []) as unknown as Array<{
+      id: string;
+      status: FriendEdge["status"];
+      created_at: string;
+      requester_id: string;
+      addressee_id: string;
+      requester: MiniProfile | null;
+      addressee: MiniProfile | null;
+    }>
+  )
     .map((row) => {
       const outgoing = row.requester_id === myId;
       const other = outgoing ? row.addressee : row.requester;
@@ -433,12 +481,17 @@ export async function respondToRequest(friendshipId: string, accept: boolean) {
 }
 
 export async function removeFriendship(friendshipId: string) {
-  const { error } = await supabase.from("friendships").delete().eq("id", friendshipId);
+  const { error } = await supabase
+    .from("friendships")
+    .delete()
+    .eq("id", friendshipId);
   if (error) throw new Error(error.message);
 }
 
 export async function blockUser(myId: string, targetId: string) {
-  const { error } = await supabase.from("blocks").insert({ blocker_id: myId, blocked_id: targetId });
+  const { error } = await supabase
+    .from("blocks")
+    .insert({ blocker_id: myId, blocked_id: targetId });
   if (error) throw new Error(error.message);
   await supabase
     .from("friendships")
@@ -451,7 +504,9 @@ export async function blockUser(myId: string, targetId: string) {
 export async function listBlocks() {
   const { data, error } = await supabase
     .from("blocks")
-    .select("id, blocked_id, created_at, profile:blocked_id(id, display_name, avatar_url, school)")
+    .select(
+      "id, blocked_id, created_at, profile:blocked_id(id, display_name, avatar_url, school)",
+    )
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as Array<{
@@ -486,7 +541,12 @@ export async function reportTarget(input: {
 
 export type HubNotification = {
   id: string;
-  kind: "friend_request" | "friend_accepted" | "group_added" | "task_assigned" | "deadline";
+  kind:
+    | "friend_request"
+    | "friend_accepted"
+    | "group_added"
+    | "task_assigned"
+    | "deadline";
   body: string;
   created_at: string;
   read: boolean;
@@ -494,7 +554,9 @@ export type HubNotification = {
   actor: MiniProfile | null;
 };
 
-export async function listNotifications(myId: string): Promise<HubNotification[]> {
+export async function listNotifications(
+  myId: string,
+): Promise<HubNotification[]> {
   const soon = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
   const nowIso = new Date().toISOString();
 
@@ -523,15 +585,17 @@ export async function listNotifications(myId: string): Promise<HubNotification[]
 
   if (stored.error) throw new Error(stored.error.message);
 
-  const items: HubNotification[] = ((stored.data ?? []) as unknown as Array<{
-    id: string;
-    type: HubNotification["kind"];
-    body: string;
-    created_at: string;
-    read: boolean;
-    group_id: string | null;
-    actor: MiniProfile | null;
-  }>).map((n) => ({
+  const items: HubNotification[] = (
+    (stored.data ?? []) as unknown as Array<{
+      id: string;
+      type: HubNotification["kind"];
+      body: string;
+      created_at: string;
+      read: boolean;
+      group_id: string | null;
+      actor: MiniProfile | null;
+    }>
+  ).map((n) => ({
     id: n.id,
     kind: n.type,
     body: n.body,
@@ -541,7 +605,11 @@ export async function listNotifications(myId: string): Promise<HubNotification[]
     actor: n.actor,
   }));
 
-  for (const g of (groups.data ?? []) as Array<{ id: string; name: string; deadline: string }>) {
+  for (const g of (groups.data ?? []) as Array<{
+    id: string;
+    name: string;
+    deadline: string;
+  }>) {
     items.push({
       id: `deadline-group-${g.id}`,
       kind: "deadline",
@@ -582,6 +650,9 @@ export async function unreadCount() {
 }
 
 export async function markAllRead() {
-  const { error } = await supabase.from("notifications").update({ read: true }).eq("read", false);
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read: true })
+    .eq("read", false);
   if (error) throw new Error(error.message);
 }

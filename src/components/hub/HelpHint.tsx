@@ -7,7 +7,11 @@
 import { HelpCircle, LifeBuoy, Compass } from "lucide-react";
 
 import { startTour } from "@/components/hub/TourGuide";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 export function HelpHint({
@@ -34,10 +38,15 @@ export function HelpHint({
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[260px] rounded-3xl p-4">
-        <p className="font-display text-[15px] font-semibold leading-tight">{title}</p>
+        <p className="font-display text-[15px] font-semibold leading-tight">
+          {title}
+        </p>
         <ul className="mt-2 space-y-1.5">
           {points.map((p) => (
-            <li key={p} className="flex gap-2 text-[12px] leading-relaxed text-muted-foreground">
+            <li
+              key={p}
+              className="flex gap-2 text-[12px] leading-relaxed text-muted-foreground"
+            >
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
               <span>{p}</span>
             </li>
@@ -63,7 +72,9 @@ export function HelpMenu() {
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[280px] rounded-3xl p-4">
-        <p className="font-display text-[15px] font-semibold leading-tight">Need a hand?</p>
+        <p className="font-display text-[15px] font-semibold leading-tight">
+          Need a hand?
+        </p>
         <ul className="mt-2 space-y-1.5">
           {[
             "Add friends first — groups can only include people on your friend list.",
@@ -71,7 +82,10 @@ export function HelpMenu() {
             "On the calendar, drag a project deadline to move the whole plan.",
             "Look for the ? next to a heading for tips about that part.",
           ].map((p) => (
-            <li key={p} className="flex gap-2 text-[12px] leading-relaxed text-muted-foreground">
+            <li
+              key={p}
+              className="flex gap-2 text-[12px] leading-relaxed text-muted-foreground"
+            >
               <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
               <span>{p}</span>
             </li>

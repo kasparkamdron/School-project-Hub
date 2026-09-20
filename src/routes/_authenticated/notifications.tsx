@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, CalendarClock, CheckCheck, FolderPlus, ListChecks, UserPlus } from "lucide-react";
+import {
+  Bell,
+  CalendarClock,
+  CheckCheck,
+  FolderPlus,
+  ListChecks,
+  UserPlus,
+} from "lucide-react";
 import { useEffect } from "react";
 
 import { AppShell } from "@/components/hub/AppShell";
@@ -10,16 +17,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { shortWhen } from "@/lib/dates";
-import { listNotifications, markAllRead, type HubNotification } from "@/lib/hub-api";
+import {
+  listNotifications,
+  markAllRead,
+  type HubNotification,
+} from "@/lib/hub-api";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
     meta: [
       { title: "Notifications — Hub" },
-      { name: "description", content: "Friend requests, group invites, task assignments and deadlines coming up." },
+      {
+        name: "description",
+        content:
+          "Friend requests, group invites, task assignments and deadlines coming up.",
+      },
       { property: "og:title", content: "Notifications — Hub" },
-      { property: "og:description", content: "Everything that needs your attention across your project groups." },
+      {
+        property: "og:description",
+        content:
+          "Everything that needs your attention across your project groups.",
+      },
     ],
   }),
   component: NotificationsPage,
@@ -47,9 +66,13 @@ function Row({ item }: { item: HubNotification }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{item.body}</p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{shortWhen(item.created_at)}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">
+          {shortWhen(item.created_at)}
+        </p>
       </div>
-      {!item.read ? <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" /> : null}
+      {!item.read ? (
+        <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+      ) : null}
     </div>
   );
 
@@ -79,10 +102,14 @@ function NotificationsPage() {
   useEffect(() => {
     const channel = supabase
       .channel("notifications-feed")
-      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
-        queryClient.invalidateQueries({ queryKey: ["unread-count"] });
-      })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "notifications" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+          queryClient.invalidateQueries({ queryKey: ["unread-count"] });
+        },
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -102,9 +129,13 @@ function NotificationsPage() {
   return (
     <AppShell>
       <section className="glass rounded-[22px] p-5 shadow-panel">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Alerts</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          Alerts
+        </p>
         <div className="mt-1 flex items-end justify-between gap-3">
-          <h1 className="font-display text-[26px] font-semibold leading-tight">What needs you</h1>
+          <h1 className="font-display text-[26px] font-semibold leading-tight">
+            What needs you
+          </h1>
           <HelpHint
             className="ml-auto"
             title="About alerts"
@@ -115,7 +146,12 @@ function NotificationsPage() {
             ]}
           />
           {hasUnread ? (
-            <Button size="sm" variant="secondary" className="rounded-full" onClick={() => readAll.mutate()}>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="rounded-full"
+              onClick={() => readAll.mutate()}
+            >
               <CheckCheck className="size-4" /> Mark read
             </Button>
           ) : null}
@@ -129,8 +165,8 @@ function NotificationsPage() {
           items.data.map((item) => <Row key={item.id} item={item} />)
         ) : (
           <p className="rounded-[18px] glass p-5 text-sm text-muted-foreground md:col-span-2">
-            Nothing here yet. Friend requests, group invites, task assignments and approaching deadlines show up on
-            this list.
+            Nothing here yet. Friend requests, group invites, task assignments
+            and approaching deadlines show up on this list.
           </p>
         )}
       </section>

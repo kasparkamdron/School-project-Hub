@@ -29,9 +29,16 @@ export const Route = createFileRoute("/_authenticated/groups/")({
   head: () => ({
     meta: [
       { title: "Your groups — Hub" },
-      { name: "description", content: "Every project group you are still actively working on, in one list." },
+      {
+        name: "description",
+        content:
+          "Every project group you are still actively working on, in one list.",
+      },
       { property: "og:title", content: "Your groups — Hub" },
-      { property: "og:description", content: "Active project groups, tasks done, and what is due next." },
+      {
+        property: "og:description",
+        content: "Active project groups, tasks done, and what is due next.",
+      },
     ],
   }),
   component: GroupsPage,
@@ -44,7 +51,9 @@ const toneClass: Record<string, string> = {
 };
 
 function GroupCard({ group }: { group: GroupSummary }) {
-  const pct = group.taskTotal ? Math.round((group.taskDone / group.taskTotal) * 100) : 0;
+  const pct = group.taskTotal
+    ? Math.round((group.taskDone / group.taskTotal) * 100)
+    : 0;
   const label = dueLabel(group.deadline);
   const tone = dueTone(group.deadline);
 
@@ -56,13 +65,22 @@ function GroupCard({ group }: { group: GroupSummary }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="truncate font-display text-[18px] font-semibold">{group.name}</h2>
+          <h2 className="truncate font-display text-[18px] font-semibold">
+            {group.name}
+          </h2>
           {group.description ? (
-            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{group.description}</p>
+            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+              {group.description}
+            </p>
           ) : null}
         </div>
         {label ? (
-          <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold", toneClass[tone])}>
+          <span
+            className={cn(
+              "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold",
+              toneClass[tone],
+            )}
+          >
             {label}
           </span>
         ) : null}
@@ -75,19 +93,29 @@ function GroupCard({ group }: { group: GroupSummary }) {
       <div className="mt-3">
         <div className="mb-1.5 flex justify-between text-[11px] font-medium">
           <span>
-            {group.taskDone} of {group.taskTotal} {group.taskTotal === 1 ? "task" : "tasks"} done
+            {group.taskDone} of {group.taskTotal}{" "}
+            {group.taskTotal === 1 ? "task" : "tasks"} done
           </span>
           <span className="text-primary">{pct}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${pct}%` }}
+          />
         </div>
       </div>
     </Link>
   );
 }
 
-function CreateGroupSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+function CreateGroupSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -101,7 +129,10 @@ function CreateGroupSheet({ open, onOpenChange }: { open: boolean; onOpenChange:
     enabled: !!user,
     queryFn: () => listFriendEdges(user!.id),
   });
-  const friends = useMemo(() => edges.filter((e) => e.status === "accepted").map((e) => e.other), [edges]);
+  const friends = useMemo(
+    () => edges.filter((e) => e.status === "accepted").map((e) => e.other),
+    [edges],
+  );
 
   const create = useMutation({
     mutationFn: async () => {
@@ -170,8 +201,8 @@ function CreateGroupSheet({ open, onOpenChange }: { open: boolean; onOpenChange:
           <Label>Members</Label>
           {friends.length === 0 ? (
             <p className="rounded-2xl glass-inset p-3 text-xs text-muted-foreground">
-              You have no friends yet. Add classmates on the Friends tab first — you can still create the group and
-              add them later.
+              You have no friends yet. Add classmates on the Friends tab first —
+              you can still create the group and add them later.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -182,14 +213,24 @@ function CreateGroupSheet({ open, onOpenChange }: { open: boolean; onOpenChange:
                     key={f.id}
                     type="button"
                     onClick={() =>
-                      setPicked((prev) => (active ? prev.filter((id) => id !== f.id) : [...prev, f.id]))
+                      setPicked((prev) =>
+                        active
+                          ? prev.filter((id) => id !== f.id)
+                          : [...prev, f.id],
+                      )
                     }
                     className={cn(
                       "inline-flex items-center gap-2 rounded-full py-1.5 pl-1 pr-3 text-xs font-medium transition",
-                      active ? "bg-primary text-primary-foreground" : "glass-inset text-foreground",
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "glass-inset text-foreground",
                     )}
                   >
-                    <UserAvatar name={f.display_name} url={f.avatar_url} className="size-6" />
+                    <UserAvatar
+                      name={f.display_name}
+                      url={f.avatar_url}
+                      className="size-6"
+                    />
                     {f.display_name}
                   </button>
                 );
@@ -214,17 +255,27 @@ function GroupsPage() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: groups, isLoading } = useQuery({ queryKey: ["groups"], queryFn: listActiveGroups });
-  const { data: quiet = 0 } = useQuery({ queryKey: ["groups", "quiet"], queryFn: countQuietGroups });
+  const { data: groups, isLoading } = useQuery({
+    queryKey: ["groups"],
+    queryFn: listActiveGroups,
+  });
+  const { data: quiet = 0 } = useQuery({
+    queryKey: ["groups", "quiet"],
+    queryFn: countQuietGroups,
+  });
 
   useEffect(() => {
     const channel = supabase
       .channel("groups-feed")
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () =>
-        queryClient.invalidateQueries({ queryKey: ["groups"] }),
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks" },
+        () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
       )
-      .on("postgres_changes", { event: "*", schema: "public", table: "group_members" }, () =>
-        queryClient.invalidateQueries({ queryKey: ["groups"] }),
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "group_members" },
+        () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
       )
       .subscribe();
     return () => {
@@ -236,7 +287,9 @@ function GroupsPage() {
     <AppShell>
       <section className="glass relative overflow-hidden rounded-[22px] p-5 shadow-panel">
         <div className="flex items-start gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Your groups</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            Your groups
+          </p>
           <HelpHint
             className="ml-auto -mt-1"
             title="How groups work"
@@ -251,7 +304,8 @@ function GroupsPage() {
           The board, wiped clean each term.
         </h1>
         <p className="mt-2 max-w-[42ch] text-pretty text-[13px] text-muted-foreground">
-          Quiet groups drop off after 30 days of no work — or 14 days after the deadline — so nothing lingers.
+          Quiet groups drop off after 30 days of no work — or 14 days after the
+          deadline — so nothing lingers.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="rounded-full glass-inset px-2.5 py-1 text-[11px] font-medium">
@@ -282,9 +336,12 @@ function GroupsPage() {
           groups.map((g) => <GroupCard key={g.id} group={g} />)
         ) : (
           <div className="rounded-[22px] glass p-6 text-center md:col-span-2 xl:col-span-3">
-            <p className="font-display text-lg font-semibold">No active groups</p>
+            <p className="font-display text-lg font-semibold">
+              No active groups
+            </p>
             <p className="mx-auto mt-1 max-w-[38ch] text-sm text-muted-foreground">
-              Start one for your next project and add the friends you are working with.
+              Start one for your next project and add the friends you are
+              working with.
             </p>
             <Button className="mt-4 rounded-full" onClick={() => setOpen(true)}>
               <Plus className="size-4" /> New group
@@ -299,9 +356,12 @@ function GroupsPage() {
             21
           </div>
           <div className="min-w-0">
-            <p className="text-[13px] font-medium">Older groups clear themselves.</p>
+            <p className="text-[13px] font-medium">
+              Older groups clear themselves.
+            </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              No tasks or notes for 30 days — or 14 days past the deadline — and a group leaves this list, then gets deleted for good.
+              No tasks or notes for 30 days — or 14 days past the deadline — and
+              a group leaves this list, then gets deleted for good.
             </p>
           </div>
         </div>

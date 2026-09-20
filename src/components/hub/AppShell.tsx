@@ -1,6 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, CalendarDays, LayoutGrid, Users, User as UserIcon, Moon, Sun } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  LayoutGrid,
+  Users,
+  User as UserIcon,
+  Moon,
+  Sun,
+} from "lucide-react";
 import type { ReactNode } from "react";
 
 import { HelpMenu } from "@/components/hub/HelpHint";
@@ -20,7 +28,10 @@ const NAV = [
 
 export function Atmosphere() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 overflow-hidden"
+    >
       <div
         className="absolute -left-32 -top-40 size-[540px] rounded-full blur-3xl"
         style={{ background: "var(--blob-1)" }}
@@ -60,10 +71,16 @@ function ThemeButton() {
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={theme === "frost" ? "Switch to Chalk theme" : "Switch to Frost theme"}
+      aria-label={
+        theme === "frost" ? "Switch to Chalk theme" : "Switch to Frost theme"
+      }
       className="grid size-10 place-items-center rounded-full glass text-muted-foreground transition hover:text-foreground"
     >
-      {theme === "frost" ? <Moon className="size-4" /> : <Sun className="size-4" />}
+      {theme === "frost" ? (
+        <Moon className="size-4" />
+      ) : (
+        <Sun className="size-4" />
+      )}
     </button>
   );
 }
@@ -77,12 +94,16 @@ function TopBar({ unread }: { unread: number }) {
           <HubMark />
           <div className="leading-none">
             <p className="font-display text-[17px] font-semibold">Hub</p>
-            <p className="mt-1 text-[10px] font-medium text-muted-foreground">Project coordination</p>
+            <p className="mt-1 text-[10px] font-medium text-muted-foreground">
+              Project coordination
+            </p>
           </div>
         </div>
         <div className="hidden md:block">
           <p className="font-display text-2xl font-semibold">Hub</p>
-          <p className="text-sm text-muted-foreground">Self-clearing project coordination</p>
+          <p className="text-sm text-muted-foreground">
+            Self-clearing project coordination
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <HelpMenu />
@@ -100,7 +121,10 @@ function TopBar({ unread }: { unread: number }) {
             ) : null}
           </Link>
           <Link to="/profile" aria-label="Your profile">
-            <UserAvatar name={profile?.display_name} url={profile?.avatar_url} />
+            <UserAvatar
+              name={profile?.display_name}
+              url={profile?.avatar_url}
+            />
           </Link>
         </div>
       </div>
@@ -118,7 +142,9 @@ function Sidebar({ unread }: { unread: number }) {
         <HubMark />
         <div>
           <p className="font-display text-lg font-semibold leading-none">Hub</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">Wipes itself clean</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Wipes itself clean
+          </p>
         </div>
       </div>
 
@@ -153,10 +179,18 @@ function Sidebar({ unread }: { unread: number }) {
         to="/profile"
         className="mt-auto flex items-center gap-3 rounded-2xl glass-inset px-3 py-3 transition hover:opacity-90"
       >
-        <UserAvatar name={profile?.display_name} url={profile?.avatar_url} className="size-8" />
+        <UserAvatar
+          name={profile?.display_name}
+          url={profile?.avatar_url}
+          className="size-8"
+        />
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{profile?.display_name || "You"}</p>
-          <p className="truncate text-[11px] text-muted-foreground">{profile?.school || "Add your school"}</p>
+          <p className="truncate text-sm font-medium">
+            {profile?.display_name || "You"}
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">
+            {profile?.school || "Add your school"}
+          </p>
         </div>
       </Link>
     </aside>
@@ -209,7 +243,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="relative md:pl-64">
         <div className="mx-auto w-full max-w-[430px] md:max-w-6xl">
           <TopBar unread={unread} />
-          <main className="px-4 pb-32 pt-4 md:px-8 md:pb-12 md:pt-0">{children}</main>
+          <main className="px-4 pb-32 pt-4 md:px-8 md:pb-12 md:pt-0">
+            {children}
+          </main>
         </div>
       </div>
       <BottomTabs unread={unread} />

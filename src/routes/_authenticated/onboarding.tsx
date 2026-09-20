@@ -14,9 +14,16 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
       { title: "Set up your Hub profile" },
-      { name: "description", content: "Tell your group mates who you are before you start coordinating." },
+      {
+        name: "description",
+        content:
+          "Tell your group mates who you are before you start coordinating.",
+      },
       { property: "og:title", content: "Set up your Hub profile" },
-      { property: "og:description", content: "Pick a display name and your school to get started on Hub." },
+      {
+        property: "og:description",
+        content: "Pick a display name and your school to get started on Hub.",
+      },
     ],
   }),
   component: Onboarding,
@@ -33,8 +40,14 @@ function Onboarding() {
   const save = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not signed in");
-      if (displayName.trim().length < 2) throw new Error("Please enter a name with at least 2 characters.");
-      await saveProfile({ id: user.id, display_name: displayName, school, onboarded: true });
+      if (displayName.trim().length < 2)
+        throw new Error("Please enter a name with at least 2 characters.");
+      await saveProfile({
+        id: user.id,
+        display_name: displayName,
+        school,
+        onboarded: true,
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -48,8 +61,12 @@ function Onboarding() {
       <Atmosphere />
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col justify-center px-5 py-10 md:max-w-lg">
         <div className="glass rounded-[26px] p-6 shadow-panel">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Welcome</p>
-          <h1 className="mt-2 font-display text-[28px] font-semibold leading-tight">How should your group see you?</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+            Welcome
+          </p>
+          <h1 className="mt-2 font-display text-[28px] font-semibold leading-tight">
+            How should your group see you?
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Your name is what friends search for when they add you.
           </p>

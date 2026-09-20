@@ -33,9 +33,16 @@ export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Your profile — Hub" },
-      { name: "description", content: "Edit your name, school and avatar, switch theme, export or delete your data." },
+      {
+        name: "description",
+        content:
+          "Edit your name, school and avatar, switch theme, export or delete your data.",
+      },
       { property: "og:title", content: "Your profile — Hub" },
-      { property: "og:description", content: "Manage your Hub account, theme and data." },
+      {
+        property: "og:description",
+        content: "Manage your Hub account, theme and data.",
+      },
     ],
   }),
   component: ProfilePage,
@@ -63,8 +70,14 @@ function ProfilePage() {
   const save = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not signed in");
-      if (displayName.trim().length < 2) throw new Error("Please enter at least 2 characters.");
-      await saveProfile({ id: user.id, display_name: displayName, school, avatar_url: avatarUrl });
+      if (displayName.trim().length < 2)
+        throw new Error("Please enter at least 2 characters.");
+      await saveProfile({
+        id: user.id,
+        display_name: displayName,
+        school,
+        avatar_url: avatarUrl,
+      });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -76,7 +89,9 @@ function ProfilePage() {
   const exportData = useMutation({
     mutationFn: exportMyData,
     onSuccess: (data) => {
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -97,7 +112,8 @@ function ProfilePage() {
       navigate({ to: "/", replace: true });
       toast.success("Your account and data were deleted.");
     },
-    onError: () => toast.error("Couldn't delete the account. Please try again."),
+    onError: () =>
+      toast.error("Couldn't delete the account. Please try again."),
   });
 
   async function signOut() {
@@ -116,7 +132,9 @@ function ProfilePage() {
             <h1 className="truncate font-display text-[24px] font-semibold leading-tight">
               {displayName || "Your profile"}
             </h1>
-            <p className="truncate text-[13px] text-muted-foreground">{user?.email}</p>
+            <p className="truncate text-[13px] text-muted-foreground">
+              {user?.email}
+            </p>
           </div>
         </div>
       </section>
@@ -169,7 +187,9 @@ function ProfilePage() {
         <div className="space-y-5">
           <section className="glass rounded-[22px] p-5">
             <h2 className="font-display text-lg font-semibold">Theme</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">Pick the look you prefer.</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Pick the look you prefer.
+            </p>
             <div className="mt-4 grid gap-2">
               {THEMES.map((t) => (
                 <button
@@ -178,21 +198,29 @@ function ProfilePage() {
                   onClick={() => setTheme(t.id)}
                   className={cn(
                     "flex items-center gap-3 rounded-2xl p-3 text-left transition",
-                    theme === t.id ? "bg-primary/12 ring-1 ring-primary/40" : "glass-inset hover:opacity-90",
+                    theme === t.id
+                      ? "bg-primary/12 ring-1 ring-primary/40"
+                      : "glass-inset hover:opacity-90",
                   )}
                 >
                   <span
                     className={cn(
                       "size-8 shrink-0 rounded-xl border border-border",
-                      t.id === "frost" ? "bg-[oklch(0.946_0.017_267.8)]" : "bg-[oklch(0.183_0.01_234.4)]",
+                      t.id === "frost"
+                        ? "bg-[oklch(0.946_0.017_267.8)]"
+                        : "bg-[oklch(0.183_0.01_234.4)]",
                     )}
                   />
                   <span className="min-w-0">
                     <span className="block text-sm font-medium">{t.label}</span>
-                    <span className="block text-[11px] text-muted-foreground">{t.hint}</span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      {t.hint}
+                    </span>
                   </span>
                   {theme === t.id ? (
-                    <span className="ml-auto text-[11px] font-semibold text-primary">Active</span>
+                    <span className="ml-auto text-[11px] font-semibold text-primary">
+                      Active
+                    </span>
                   ) : null}
                 </button>
               ))}
@@ -219,7 +247,11 @@ function ProfilePage() {
                 <Compass className="size-4" /> Replay the app tour
               </Button>
 
-              <Button variant="ghost" className="h-12 w-full justify-start rounded-2xl" onClick={signOut}>
+              <Button
+                variant="ghost"
+                className="h-12 w-full justify-start rounded-2xl"
+                onClick={signOut}
+              >
                 <LogOut className="size-4" /> Sign out
               </Button>
 
@@ -236,11 +268,14 @@ function ProfilePage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This removes your profile, friendships, tasks and notes immediately. It cannot be undone.
+                      This removes your profile, friendships, tasks and notes
+                      immediately. It cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-full">Keep my account</AlertDialogCancel>
+                    <AlertDialogCancel className="rounded-full">
+                      Keep my account
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       onClick={() => wipe.mutate()}

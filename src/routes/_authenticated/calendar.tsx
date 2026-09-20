@@ -51,7 +51,8 @@ export const Route = createFileRoute("/_authenticated/calendar")({
       { property: "og:title", content: "Calendar — Hub" },
       {
         property: "og:description",
-        content: "Filter your group project deadlines and drag them to a new day to reschedule everything at once.",
+        content:
+          "Filter your group project deadlines and drag them to a new day to reschedule everything at once.",
       },
     ],
   }),
@@ -102,13 +103,24 @@ function ItemRow({
         <span
           className={cn(
             "mt-0.5 grid size-7 shrink-0 place-items-center rounded-xl",
-            item.kind === "group" ? "bg-primary/15 text-primary" : "bg-accent/20 text-foreground",
+            item.kind === "group"
+              ? "bg-primary/15 text-primary"
+              : "bg-accent/20 text-foreground",
           )}
         >
-          {item.kind === "group" ? <Flag className="size-3.5" /> : <CircleDot className="size-3.5" />}
+          {item.kind === "group" ? (
+            <Flag className="size-3.5" />
+          ) : (
+            <CircleDot className="size-3.5" />
+          )}
         </span>
         <span className="min-w-0">
-          <span className={cn("block truncate text-sm font-medium", item.completed && "line-through opacity-60")}>
+          <span
+            className={cn(
+              "block truncate text-sm font-medium",
+              item.completed && "line-through opacity-60",
+            )}
+          >
             {item.title}
           </span>
           <span className="block truncate text-[11px] text-muted-foreground">
@@ -137,7 +149,9 @@ function Chip({
       onClick={onClick}
       className={cn(
         "rounded-full px-3 py-1.5 text-[12px] font-medium transition",
-        active ? "bg-primary text-primary-foreground" : "glass-inset text-muted-foreground hover:text-foreground",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "glass-inset text-muted-foreground hover:text-foreground",
       )}
     >
       {children}
@@ -154,7 +168,9 @@ function ProgressRow({
   active: boolean;
   onSelect: () => void;
 }) {
-  const pct = group.taskTotal ? Math.round((group.taskDone / group.taskTotal) * 100) : 0;
+  const pct = group.taskTotal
+    ? Math.round((group.taskDone / group.taskTotal) * 100)
+    : 0;
   return (
     <button
       type="button"
@@ -166,14 +182,22 @@ function ProgressRow({
     >
       <div className="flex items-baseline justify-between gap-2">
         <span className="truncate text-sm font-medium">{group.name}</span>
-        <span className="shrink-0 text-[11px] font-semibold text-primary">{pct}%</span>
+        <span className="shrink-0 text-[11px] font-semibold text-primary">
+          {pct}%
+        </span>
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        <div
+          className="h-full rounded-full bg-primary transition-all"
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <p className="mt-1.5 text-[11px] text-muted-foreground">
-        {group.taskDone} of {group.taskTotal} {group.taskTotal === 1 ? "task" : "tasks"} done
-        {group.deadline ? ` · due ${format(new Date(group.deadline), "d MMM")}` : ""}
+        {group.taskDone} of {group.taskTotal}{" "}
+        {group.taskTotal === 1 ? "task" : "tasks"} done
+        {group.deadline
+          ? ` · due ${format(new Date(group.deadline), "d MMM")}`
+          : ""}
       </p>
     </button>
   );
@@ -195,12 +219,17 @@ function CalendarPage() {
     queryFn: listCalendarItems,
   });
 
-  const { data: groups } = useQuery({ queryKey: ["groups"], queryFn: listActiveGroups });
+  const { data: groups } = useQuery({
+    queryKey: ["groups"],
+    queryFn: listActiveGroups,
+  });
 
   const projects = useMemo(() => {
     const map = new Map<string, string>();
     for (const i of items ?? []) map.set(i.groupId, i.groupName);
-    return [...map].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    return [...map]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [items]);
 
   const filtered = useMemo(
@@ -218,16 +247,29 @@ function CalendarPage() {
     mutationFn: async ({ item, day }: { item: CalendarItem; day: Date }) => {
       const nextDate = moveToDay(item.date, day);
       if (item.kind === "group") {
-        const { shiftedTasks } = await rescheduleProject(item.groupId, nextDate);
-        return { label: `${item.title} moved to ${format(day, "d MMM")}`, shiftedTasks };
+        const { shiftedTasks } = await rescheduleProject(
+          item.groupId,
+          nextDate,
+        );
+        return {
+          label: `${item.title} moved to ${format(day, "d MMM")}`,
+          shiftedTasks,
+        };
       }
       await updateTask(item.id.replace(/^task-/, ""), { deadline: nextDate });
-      return { label: `${item.title} moved to ${format(day, "d MMM")}`, shiftedTasks: 0 };
+      return {
+        label: `${item.title} moved to ${format(day, "d MMM")}`,
+        shiftedTasks: 0,
+      };
     },
     onSuccess: async ({ label, shiftedTasks }) => {
       setMoving(null);
       await queryClient.invalidateQueries();
-      toast.success(shiftedTasks > 0 ? `${label} — ${shiftedTasks} task(s) shifted too` : label);
+      toast.success(
+        shiftedTasks > 0
+          ? `${label} — ${shiftedTasks} task(s) shifted too`
+          : label,
+      );
     },
     onError: (e: Error) => {
       setMoving(null);
@@ -254,7 +296,9 @@ function CalendarPage() {
   }, [filtered]);
 
   const selectedItems = byDay.get(format(selected, "yyyy-MM-dd")) ?? [];
-  const upcoming = filtered.filter((i) => new Date(i.date) >= new Date(new Date().toDateString())).slice(0, 6);
+  const upcoming = filtered
+    .filter((i) => new Date(i.date) >= new Date(new Date().toDateString()))
+    .slice(0, 6);
 
   function handleDay(day: Date) {
     if (moving) {
@@ -273,7 +317,9 @@ function CalendarPage() {
             <CalendarDays className="size-5" />
           </span>
           <div className="min-w-0">
-            <h1 className="font-display text-[24px] font-semibold leading-tight">Calendar</h1>
+            <h1 className="font-display text-[24px] font-semibold leading-tight">
+              Calendar
+            </h1>
             <p className="text-[13px] text-muted-foreground">
               Filter by project, then drag a deadline onto a new day.
             </p>
@@ -290,7 +336,10 @@ function CalendarPage() {
           />
         </div>
 
-        <div data-tour="calendar-filters" className="mt-4 flex flex-wrap items-center gap-2">
+        <div
+          data-tour="calendar-filters"
+          className="mt-4 flex flex-wrap items-center gap-2"
+        >
           <Chip active={kind === "all"} onClick={() => setKind("all")}>
             Everything
           </Chip>
@@ -308,11 +357,18 @@ function CalendarPage() {
 
         {projects.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <Chip active={projectId === "all"} onClick={() => setProjectId("all")}>
+            <Chip
+              active={projectId === "all"}
+              onClick={() => setProjectId("all")}
+            >
               All projects
             </Chip>
             {projects.map((p) => (
-              <Chip key={p.id} active={projectId === p.id} onClick={() => setProjectId(p.id)}>
+              <Chip
+                key={p.id}
+                active={projectId === p.id}
+                onClick={() => setProjectId(p.id)}
+              >
                 {p.name}
               </Chip>
             ))}
@@ -323,7 +379,9 @@ function CalendarPage() {
       {moving ? (
         <div className="mt-4 flex items-center gap-3 rounded-2xl glass p-4">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-medium">Moving “{moving.title}”</p>
+            <p className="truncate text-[13px] font-medium">
+              Moving “{moving.title}”
+            </p>
             <p className="text-xs text-muted-foreground">
               {moving.kind === "group"
                 ? "Tap or drop on a day — every dated task shifts with it."
@@ -344,7 +402,9 @@ function CalendarPage() {
       <div className="mt-5 grid gap-5 md:grid-cols-[1.4fr_1fr]">
         <section className="glass rounded-[22px] p-4">
           <div className="flex items-center justify-between px-1">
-            <p className="font-display text-lg font-semibold">{format(cursor, "MMMM yyyy")}</p>
+            <p className="font-display text-lg font-semibold">
+              {format(cursor, "MMMM yyyy")}
+            </p>
             <div className="flex items-center gap-1">
               <button
                 type="button"
@@ -389,7 +449,9 @@ function CalendarPage() {
                       e.preventDefault();
                       setDropDay(key);
                     }}
-                    onDragLeave={() => setDropDay((d) => (d === key ? null : d))}
+                    onDragLeave={() =>
+                      setDropDay((d) => (d === key ? null : d))
+                    }
                     onDrop={(e) => {
                       e.preventDefault();
                       setDropDay(null);
@@ -398,12 +460,19 @@ function CalendarPage() {
                     className={cn(
                       "flex min-h-13 flex-col items-center justify-start gap-1 rounded-2xl px-1 py-2 text-sm transition",
                       !isSameMonth(day, cursor) && "opacity-35",
-                      isSelected ? "bg-primary text-primary-foreground" : "hover:bg-sidebar-accent/60",
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-sidebar-accent/60",
                       dropDay === key && "ring-2 ring-primary",
                       moving && !isSelected && "bg-sidebar-accent/40",
                     )}
                   >
-                    <span className={cn("font-medium", isToday(day) && !isSelected && "text-primary")}>
+                    <span
+                      className={cn(
+                        "font-medium",
+                        isToday(day) && !isSelected && "text-primary",
+                      )}
+                    >
                       {format(day, "d")}
                     </span>
                     <span className="flex gap-0.5">
@@ -412,7 +481,11 @@ function CalendarPage() {
                           key={i.id}
                           className={cn(
                             "size-1.5 rounded-full",
-                            isSelected ? "bg-primary-foreground" : i.kind === "group" ? "bg-primary" : "bg-warning",
+                            isSelected
+                              ? "bg-primary-foreground"
+                              : i.kind === "group"
+                                ? "bg-primary"
+                                : "bg-warning",
                           )}
                         />
                       ))}
@@ -425,7 +498,8 @@ function CalendarPage() {
 
           <div className="mt-3 flex flex-wrap gap-3 px-1 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-primary" /> Project deadline
+              <span className="size-1.5 rounded-full bg-primary" /> Project
+              deadline
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-warning" /> Task due
@@ -435,13 +509,22 @@ function CalendarPage() {
 
         <div className="space-y-5">
           <section className="glass rounded-[22px] p-5">
-            <h2 className="font-display text-lg font-semibold">{format(selected, "EEEE d MMM")}</h2>
+            <h2 className="font-display text-lg font-semibold">
+              {format(selected, "EEEE d MMM")}
+            </h2>
             <div className="mt-3 space-y-2">
               {selectedItems.length === 0 ? (
-                <p className="text-[13px] text-muted-foreground">Nothing due on this day.</p>
+                <p className="text-[13px] text-muted-foreground">
+                  Nothing due on this day.
+                </p>
               ) : (
                 selectedItems.map((i) => (
-                  <ItemRow key={i.id} item={i} onPickUp={setMoving} isMoving={moving?.id === i.id} />
+                  <ItemRow
+                    key={i.id}
+                    item={i}
+                    onPickUp={setMoving}
+                    isMoving={moving?.id === i.id}
+                  />
                 ))
               )}
             </div>
@@ -449,7 +532,9 @@ function CalendarPage() {
 
           <section className="glass rounded-[22px] p-5">
             <div className="flex items-center gap-2">
-              <h2 className="font-display text-lg font-semibold">Project progress</h2>
+              <h2 className="font-display text-lg font-semibold">
+                Project progress
+              </h2>
               <HelpHint
                 className="ml-auto"
                 title="Project progress"
@@ -463,14 +548,18 @@ function CalendarPage() {
               {!groups ? (
                 <Skeleton className="h-20 w-full rounded-2xl" />
               ) : groups.length === 0 ? (
-                <p className="text-[13px] text-muted-foreground">No active projects yet.</p>
+                <p className="text-[13px] text-muted-foreground">
+                  No active projects yet.
+                </p>
               ) : (
                 groups.map((g) => (
                   <ProgressRow
                     key={g.id}
                     group={g}
                     active={projectId === g.id}
-                    onSelect={() => setProjectId((p) => (p === g.id ? "all" : g.id))}
+                    onSelect={() =>
+                      setProjectId((p) => (p === g.id ? "all" : g.id))
+                    }
                   />
                 ))
               )}
@@ -484,15 +573,25 @@ function CalendarPage() {
                 <Skeleton className="h-16 w-full rounded-2xl" />
               ) : upcoming.length === 0 ? (
                 <p className="text-[13px] text-muted-foreground">
-                  Nothing matches these filters yet. Add a due date to a project or task and it will show up here.
+                  Nothing matches these filters yet. Add a due date to a project
+                  or task and it will show up here.
                 </p>
               ) : (
                 upcoming.map((i) => (
-                  <ItemRow key={`up-${i.id}`} item={i} onPickUp={setMoving} isMoving={moving?.id === i.id} />
+                  <ItemRow
+                    key={`up-${i.id}`}
+                    item={i}
+                    onPickUp={setMoving}
+                    isMoving={moving?.id === i.id}
+                  />
                 ))
               )}
             </div>
-            <Button asChild variant="ghost" className="mt-3 h-11 w-full rounded-2xl">
+            <Button
+              asChild
+              variant="ghost"
+              className="mt-3 h-11 w-full rounded-2xl"
+            >
               <Link to="/groups">Open your groups</Link>
             </Button>
           </section>
